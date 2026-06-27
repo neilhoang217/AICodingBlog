@@ -1,0 +1,25 @@
+@model AICodingBlog.Models.Post
+@{ ViewData["Title"] = Model.Title; }
+
+<article>
+    <h1>@Model.Title</h1>
+    <p class="text-muted">
+        Published @Model.CreatedAt.ToLocalTime().ToString("MMMM d, yyyy")
+        @if (Model.UpdatedAt.HasValue)
+        {
+            <span>&middot; Updated @Model.UpdatedAt.Value.ToLocalTime().ToString("MMMM d, yyyy")</span>
+        }
+    </p>
+    @if (!string.IsNullOrWhiteSpace(Model.Summary))
+    {
+        <blockquote class="blockquote">@Model.Summary</blockquote>
+    }
+    <hr />
+    <div>@Html.Raw(Model.Content)</div>
+</article>
+
+<div class="mt-4">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Edit</a>
+    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-2">Delete</a>
+    <a asp-action="Index" class="btn btn-link ms-2">Back to list</a>
+</div>

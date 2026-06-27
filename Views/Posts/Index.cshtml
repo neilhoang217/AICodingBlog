@@ -1,0 +1,33 @@
+@model IEnumerable<AICodingBlog.Models.Post>
+@{ ViewData["Title"] = "Posts"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Blog Posts</h1>
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        <a asp-action="Create" class="btn btn-primary">New Post</a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">No posts yet. Create your first one!</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var post in Model)
+        {
+            <a asp-action="Details" asp-route-id="@post.Id" class="list-group-item list-group-item-action">
+                <div class="d-flex justify-content-between">
+                    <h5 class="mb-1">@post.Title</h5>
+                    <small class="text-muted">@post.CreatedAt.ToLocalTime().ToString("MMM d, yyyy")</small>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(post.Summary))
+                {
+                    <p class="mb-1 text-muted">@post.Summary</p>
+                }
+            </a>
+        }
+    </div>
+}
