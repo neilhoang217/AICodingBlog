@@ -27,9 +27,17 @@ public class PostsController(AppDbContext db, ILogger<PostsController> logger) :
     [AllowAnonymous]
     public async Task<IActionResult> Details(int id)
     {
-        var post = await db.Posts.FindAsync(id);
-        if (post is null) return NotFound();
-        return View(post);
+        try
+        {
+            var post = await db.Posts.FindAsync(id);
+            if (post is null) return NotFound();
+            return View(post);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to load blog post {PostId}.", id);
+            return RedirectToAction(nameof(Index));
+        }
     }
 
     public IActionResult Create() => View();
@@ -39,17 +47,35 @@ public class PostsController(AppDbContext db, ILogger<PostsController> logger) :
     public async Task<IActionResult> Create(Post post)
     {
         if (!ModelState.IsValid) return View(post);
-        post.CreatedAt = DateTime.UtcNow;
-        db.Posts.Add(post);
-        await db.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
+
+        try
+        {
+            post.CreatedAt = DateTime.UtcNow;
+            db.Posts.Add(post);
+            await db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to create blog post.");
+            ModelState.AddModelError(string.Empty, "The post could not be published right now.");
+            return View(post);
+        }
     }
 
     public async Task<IActionResult> Edit(int id)
     {
-        var post = await db.Posts.FindAsync(id);
-        if (post is null) return NotFound();
-        return View(post);
+        try
+        {
+            var post = await db.Posts.FindAsync(id);
+            if (post is null) return NotFound();
+            return View(post);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to load blog post {PostId} for editing.", id);
+            return RedirectToAction(nameof(Index));
+        }
     }
 
     [HttpPost]
@@ -58,29 +84,55 @@ public class PostsController(AppDbContext db, ILogger<PostsController> logger) :
     {
         if (id != post.Id) return BadRequest();
         if (!ModelState.IsValid) return View(post);
-        post.UpdatedAt = DateTime.UtcNow;
-        db.Posts.Update(post);
-        await db.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
+
+        try
+        {
+            post.UpdatedAt = DateTime.UtcNow;
+            db.Posts.Update(post);
+            await db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to update blog post {PostId}.", id);
+            ModelState.AddModelError(string.Empty, "The post could not be saved right now.");
+            return View(post);
+        }
     }
 
     public async Task<IActionResult> Delete(int id)
     {
-        var post = await db.Posts.FindAsync(id);
-        if (post is null) return NotFound();
-        return View(post);
+        try
+        {
+            var post = await db.Posts.FindAsync(id);
+            if (post is null) return NotFound();
+            return View(post);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to load blog post {PostId} for deletion.", id);
+            return RedirectToAction(nameof(Index));
+        }
     }
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var post = await db.Posts.FindAsync(id);
-        if (post is not null)
+        try
         {
-            db.Posts.Remove(post);
-            await db.SaveChangesAsync();
+            var post = await db.Posts.FindAsync(id);
+            if (post is not null)
+            {
+                db.Posts.Remove(post);
+                await db.SaveChangesAsync();
+            }
         }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to delete blog post {PostId}.", id);
+        }
+
         return RedirectToAction(nameof(Index));
     }
 }
