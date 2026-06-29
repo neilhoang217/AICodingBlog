@@ -87,8 +87,14 @@ public class PostsController(AppDbContext db, ILogger<PostsController> logger) :
 
         try
         {
-            post.UpdatedAt = DateTime.UtcNow;
-            db.Posts.Update(post);
+            var existingPost = await db.Posts.FindAsync(id);
+            if (existingPost is null) return NotFound();
+
+            existingPost.Title = post.Title;
+            existingPost.Summary = post.Summary;
+            existingPost.Content = post.Content;
+            existingPost.UpdatedAt = DateTime.UtcNow;
+
             await db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
