@@ -9,6 +9,11 @@
     }
 </div>
 
+@if (ViewBag.PostsError is string postsError)
+{
+    <div class="alert alert-warning" role="alert">@postsError</div>
+}
+
 @if (!Model.Any())
 {
     <p class="text-muted">No posts yet. Create your first one!</p>

@@ -7,13 +7,22 @@ using Microsoft.AspNetCore.Authorization;
 namespace AICodingBlog.Controllers;
 
 [Authorize]
-public class PostsController(AppDbContext db) : Controller
+public class PostsController(AppDbContext db, ILogger<PostsController> logger) : Controller
 {
     [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
-        var posts = await db.Posts.OrderByDescending(p => p.CreatedAt).ToListAsync();
-        return View(posts);
+        try
+        {
+            var posts = await db.Posts.OrderByDescending(p => p.CreatedAt).ToListAsync();
+            return View(posts);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to load blog posts.");
+            ViewBag.PostsError = "Blog posts could not be loaded right now.";
+            return View(Array.Empty<Post>());
+        }
     }
     [AllowAnonymous]
     public async Task<IActionResult> Details(int id)
