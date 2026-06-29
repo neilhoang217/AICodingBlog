@@ -19,7 +19,10 @@
 </article>
 
 <div class="mt-4">
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Edit</a>
-    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-2">Delete</a>
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Edit</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-2">Delete</a>
+    }
     <a asp-action="Index" class="btn btn-link ms-2">Back to list</a>
 </div>
